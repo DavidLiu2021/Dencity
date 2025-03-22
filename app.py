@@ -29,12 +29,9 @@ def get_population_data():
 def fetch_population_data(year, district=None):
     """Fetch population density data from Barcelona Open Data"""
     try:
-        # This is a placeholder URL - replace with actual API endpoint
         base_url = "https://opendata-ajuntament.barcelona.cat/data/api/action/datastore_search"
         
-        # You would need to find the correct resource_id for population data
-        # For example, the population density by neighborhood dataset
-        resource_id = "population-dataset-id"  # Replace with actual dataset ID
+        resource_id = "population-dataset-id"  # for now just a place holder
         
         params = {
             'resource_id': resource_id,
@@ -63,7 +60,7 @@ def fetch_population_data(year, district=None):
                     
             return points
         else:
-            # If the API fails, use mock data for demo purposes
+            # default mock data if no response from opendata api
             app.logger.warning(f"Using mock data as API returned: {response.status_code}")
             return generate_mock_data(year)
             
