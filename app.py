@@ -15,11 +15,11 @@ def index():
 @app.route('/api/population-data', methods=['GET'])
 def get_population_data():
     """Get population density data for the heatmap"""
-    year = request.args.get('year', '2023')
+    year = request.args.get('year', '2024')
     district = request.args.get('district', None)
     
     try:
-        # Get data from Barcelona Open Data API
+        # get data from Barcelona Open Data API
         data = fetch_population_data(year, district)
         return jsonify(data)
     except Exception as e:
@@ -46,8 +46,7 @@ def fetch_population_data(year, district=None):
         if response.status_code == 200:
             data = response.json()
             
-            # Process the API response into heatmap points
-            # This transformation will depend on the actual data structure
+            # process the API response into heatmap points
             points = []
             for record in data.get('result', {}).get('records', []):
                 try:
@@ -66,7 +65,7 @@ def fetch_population_data(year, district=None):
             
     except Exception as e:
         app.logger.error(f"Error in fetch_population_data: {str(e)}")
-        # Fallback to mock data
+        # fallback to mock data
         return generate_mock_data(year)
 
 def generate_mock_data(year):
