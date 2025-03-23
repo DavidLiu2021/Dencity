@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcelona Population Density Heatmap</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div id="map"></div>
+    <div class="controls">
+        <h1>Barcelona Population Density</h1>
+        <div class="control-group">
+            <label for="year">Year:</label>
+            <select id="year">
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="district">District:</label>
+            <select id="district">
+                <option value="">All Districts</option>
+                <!-- Districts will be populated by JavaScript -->
+            </select>
+        </div>
+        <button id="updateMap">Update Map</button>
+        <div class="legend" id="legend">
+            <h3>Population Density</h3>
+            <div class="legend-scale">
+                <div class="legend-item">
+                    <span style="background-color: blue;"></span>Low
+                </div>
+                <div class="legend-item">
+                    <span style="background-color: cyan;"></span>
+                </div>
+                <div class="legend-item">
+                    <span style="background-color: lime;"></span>
+                </div>
+                <div class="legend-item">
+                    <span style="background-color: yellow;"></span>
+                </div>
+                <div class="legend-item">
+                    <span style="background-color: red;"></span>High
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+</body>
+</html>
