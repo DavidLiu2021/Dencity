@@ -53,13 +53,14 @@ async function updateHeatmap() {
             url += `&district=${district}`;
             // Load district boundary if a specific district is selected
             await loadDistrictBoundary(district);
-        } else {
-            // Remove district boundary if viewing all districts
-            if (districtLayer) {
-                map.removeLayer(districtLayer);
-                districtLayer = null;
-            }
-        }
+        } 
+        // else {
+        //     // Remove district boundary if viewing all districts
+        //     if (districtLayer) {
+        //         map.removeLayer(districtLayer);
+        //         districtLayer = null;
+        //     }
+        // }
         
         // Fetch the data
         const response = await fetch(url);

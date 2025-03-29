@@ -17,6 +17,7 @@ def index():
     """Serve the main page"""
     return render_template('index.html')
 
+# region fetch data from api
 @app.route('/api/population-data', methods=['GET'])
 def get_population_data():
     """Get population density data for the heatmap"""
@@ -31,7 +32,9 @@ def get_population_data():
     except Exception as e:
         logger.error(f"Error fetching data: {str(e)}")
         return jsonify({'error': str(e)}), 500
+# endregion
 
+# region read data from local
 def fetch_population_data(json_path, year, district=None):
     """read from local for population data json"""
     if not os.path.exists(json_path):
@@ -65,7 +68,10 @@ def fetch_population_data(json_path, year, district=None):
     except Exception as e:
         logger.error(f"error when fetch population data: {str(e)}")
         return generate_mock_data(year)
+# endregion
 
+
+# region data process to heatpoint
 def process_api_data(records):
     """transfer filtered data -> heatmap data"""
 
@@ -83,11 +89,89 @@ def process_api_data(records):
     }
     
     barri_coordinates = {
+        # Ciutat Vella
         "el Raval": (41.3797, 2.1686),
-        "el Gòtic": (41.3833, 2.1763),
-        "la Barceloneta": (41.3829, 2.1897),
-        "Sant Pere, Santa Caterina i la Ribera": (41.3861, 2.1819),
-        # ...
+        "el Barri Gòtic": (41.3763, 2.1728),
+        "la Barceloneta": (41.3745, 2.1869),
+        "Sant Pere, Santa Caterina i la Ribera": (41.3840, 2.1762),
+        
+        # Eixample
+        "el Fort Pienc": (41.3953, 2.1813),
+        "la Sagrada Família": (41.4037, 2.1735),
+        "la Dreta de l'Eixample": (41.3960, 2.1668),
+        "l'Antiga Esquerra de l'Eixample": (41.3898, 2.1537),
+        "la Nova Esquerra de l'Eixample": (41.3833, 2.1427),
+        # "Sant Antoni": (),
+        
+        
+        # Sants-Montjuïc
+        "el Poble-sec": (41.3708, 2.1579),
+        "la Marina de Port": (41.3557, 2.1379),
+        "la Font de la Guatlla": (41.3696, 2.1448),
+        "Hostafrancs": (41.3579, 2.1575),
+        "la Bordeta": (41.3689, 2.1355),
+        "Sants - Badal": (41.3718, 2.1226),
+        "Sants": (41.3833, 2.1499),
+        
+        # Les Corts
+        "les Corts": (41.3838, 2.1263),
+        "Pedralbes": (41.3901, 2.1078),
+        "Vallvidrera": (41.4070, 2.10513),
+        
+        # Sarrià-Sant Gervasi
+        "Sarrià": (41.3929, 2.1197),
+        "les Tres Torres": (41.3924, 2.1253),
+        "Sant Gervasi - la Bonanova": (41.40383, 2.1334),
+        "Sant Gervasi - Galvany": (41.3913, 2.1396),
+        "el Putxet i el Farró": (41.4069, 2.1439),
+        
+        # Gràcia
+        "Vallcarca i els Penitents": (41.40766, 2.1391),
+        "el Coll": (41.418831658, 2.143166094),
+        "la Salut": (41.4074850367, 2.1508577299),
+        "la Vila de Gràcia": (41.403998384, 2.154832714),
+        "el Camp d'en Grassot i Gràcia Nova": (41.4036517187, 2.1671409981),
+        
+        # Horta-Guinardó
+        "el Baix Guinardó": (41.4055350445, 2.16681933272),
+        "Can Baró": (41.4166, 2.1622),
+        "el Guinardó": (41.418998324, 2.16710266492),
+        "la Font d'en Fargues": (41.4216149802, 2.1593160294),
+        "el Carmel": (41.421498314, 2.153166054),
+        "la Teixonera": (41.4205433178, 2.14084443662),
+        "Sant Genís dels Agudells": (41.4237683049, 2.12619449522),
+        "Montbau": (41.4252199658, 2.13911277688),
+        "la Vall d'Hebron": (41.4240183039, 2.1396077749),
+        "Horta": (41.4243666359, 2.15605937576),
+        
+        # Nou Barris
+        "Vilapicina i la Torre Llobeta": (41.4239216376, 2.16918932324),
+        "Porta": (41.4341215968, 2.17163431346),
+        "el Turó de la Peira": (41.4264699608, 2.15948436206),
+        "la Guineueta": (41.4381365808, 2.1698576539), 
+        "Canyelles": (41.4462639, 2.1731444),
+        "les Roquetes": (41.4425182299, 2.16988432046),
+        "Verdun": (41.442, 2.17531),
+        "la Prosperitat": (41.4389282443, 2.17567763062),
+        "la Trinitat Nova": (41.4424798967, 2.18448092874),
+        "Torre Baró": (41.451076529,  2.17379763814),
+        "Ciutat Meridiana": (41.4609, 2.1744),
+        
+        # Sant Andreu
+        "la Trinitat Vella": (41.4428082288, 2.18932257604),
+        "Baró de Viver": (41.4420748984, 2.20044419822),
+        "el Bon Pastor": (41.4365, 2.19989),
+        "Sant Andreu": (41.43499826, 2.187999248),
+        "la Sagrera": (41.4200799863, 2.1851242595),
+        "el Congrés i els Indians": (41.4221933112, 2.17507263304),
+        "Navas": (41.409331696, 2.185499258),
+        
+        # Sant Martí
+        "el Camp de l'Arpa del Clot": (41.4068583726, 2.176165962),
+        "el Clot": (41.408682, 2.186899),
+        "el Parc i la Llacuna del Poblenou": (41.3986, 2.1903),
+        "la Vila Olímpica del Poblenou": (41.387831782, 2.192832562),
+        "el Poblenou": (41.392831762, 2.202332524),
     }
     
     def generate_coordinates(record):
@@ -111,10 +195,12 @@ def process_api_data(records):
         barri_id = record.get('Codi_Barri', 0)
         section_id = record.get('Seccio_Censal', 0)
         
-        lat_offset = (district_id * 0.006) + (barri_id * 0.00001) + (section_id * 0.00001)
-        lng_offset = (district_id * 0.002) + (barri_id * 0.00009) + (section_id * 0.00001)
+        lat_offset = (district_id * 0.001) + (barri_id * 0.00001) + (section_id * 0.00001)
+        lng_offset = (district_id * 0.001) + (barri_id * 0.00001) + (section_id * 0.00001)
         
-        return base_lat + lat_offset, base_lng + lng_offset
+        
+        return base_lat, base_lng
+        # return base_lat + lat_offset, base_lng + lng_offset
     
     points = []
     
@@ -135,7 +221,9 @@ def process_api_data(records):
     
     logger.info(f"correct perform with {len(points)} data points")
     return points
+# endregion
 
+# region mock data
 def generate_mock_data(year):
     """mock data"""
     
@@ -166,7 +254,9 @@ def generate_mock_data(year):
         points.append([lat, lng, intensity])
     
     return points
+# endregion
 
+# region get location info on map
 @app.route('/api/districts', methods=['GET'])
 def get_districts():
     """get district location"""
@@ -183,7 +273,9 @@ def get_districts():
         {"id": "sant_marti", "name": "Sant Martí"}
     ]
     return jsonify(districts)
+# endregion
 
+# region get barcelona boundaries
 @app.route('/api/boundaries/<district>', methods=['GET'])
 def get_district_boundaries(district):
     """set boudaries"""
@@ -200,6 +292,7 @@ def get_district_boundaries(district):
     except Exception as e:
         logger.error(f"error when fetching boundaries data: {str(e)}")
         return jsonify({"error": str(e)}), 500
+# endregion
     
 if __name__ == '__main__':
     app.run(debug=True)
