@@ -21,13 +21,13 @@ def index():
 @app.route('/api/population-data', methods=['GET'])
 def get_population_data():
     """Get population density data for the heatmap"""
-    year = request.args.get('year', '2024')
+    # year = request.args.get('year', '2024')
     district = request.args.get('district', None)
     json_path = "./json/2024_pad_mdbas.json"
     
     try:
         # load from local json file
-        data = fetch_population_data(json_path, year, district)
+        data = fetch_population_data(json_path, district)
         return jsonify(data)
     except Exception as e:
         logger.error(f"Error fetching data: {str(e)}")
@@ -35,39 +35,39 @@ def get_population_data():
 # endregion
 
 # region read data from local
-def fetch_population_data(json_path, year, district=None):
+def fetch_population_data(json_path, district=None):
     """read from local for population data json"""
     if not os.path.exists(json_path):
         logger.error(f"json not exist: {json_path}")
-        return generate_mock_data(year)
+        return generate_mock_data()
     
     try:
         with open(json_path, "r", encoding="utf-8") as f:
             records = json.load(f)
         
         filtered_records = []
-        year_str = f"{year}-01-01"
+        # year_str = f"{year}-01-01"
         
         if isinstance(records, list):
             for record in records:
-                if record.get('Data_Referencia') == year_str:
+                # if record.get('Data_Referencia') == year_str:
                     if district and record.get('Nom_Districte') != district:
                         continue
                     filtered_records.append(record)
         else:
             logger.warning("wrong json format of date")
-            return generate_mock_data(year)
+            return generate_mock_data()
         
         # use mock data instead
         if not filtered_records:
-            logger.warning(f"use mock data instead: year={year}, district={district}")
-            return generate_mock_data(year)
+            logger.warning(f"use mock data instead: district={district}")
+            return generate_mock_data()
         
         return process_api_data(filtered_records)
             
     except Exception as e:
         logger.error(f"error when fetch population data: {str(e)}")
-        return generate_mock_data(year)
+        return generate_mock_data()
 # endregion
 
 
@@ -90,18 +90,18 @@ def process_api_data(records):
     
     barri_coordinates = {
         # Ciutat Vella
-        "el Raval": (41.3797, 2.1686),
-        "el Barri Gòtic": (41.3763, 2.1728),
-        "la Barceloneta": (41.3745, 2.1869),
-        "Sant Pere, Santa Caterina i la Ribera": (41.3840, 2.1762),
+        "el Raval": (41.3797223, 2.1686134),
+        "el Barri Gòtic": (41.37639828, 2.1728234),
+        "la Barceloneta": (41.374599, 2.1869234),
+        "Sant Pere, Santa Caterina i la Ribera": (41.3840976, 2.1762239),
         
         # Eixample
-        "el Fort Pienc": (41.3953, 2.1813),
-        "la Sagrada Família": (41.4037, 2.1735),
-        "la Dreta de l'Eixample": (41.3960, 2.1668),
-        "l'Antiga Esquerra de l'Eixample": (41.3898, 2.1537),
-        "la Nova Esquerra de l'Eixample": (41.3833, 2.1427),
-        # "Sant Antoni": (),
+        "el Fort Pienc": (41.395334, 2.181323),
+        "la Sagrada Família": (41.403797, 2.1735445),
+        "la Dreta de l'Eixample": (41.396094, 2.1668367),
+        "l'Antiga Esquerra de l'Eixample": (41.3898284, 2.1537083),
+        "la Nova Esquerra de l'Eixample": (41.3833284, 2.1427384),
+        "Sant Antoni": (41.3867284, 21.1444922),
         
         
         # Sants-Montjuïc
@@ -211,12 +211,12 @@ def process_api_data(records):
             points.append([lat, lng, value])
                 
         except (ValueError, TypeError) as e:
-            logger.warning(f"处理记录时出错 {record}: {e}")
+            logger.warning(f"data dealing error {record}: {e}")
             continue
     
     if len(points) < 10:
         logger.warning(f"not enough data points")
-        mock_points = generate_mock_data("2024")
+        mock_points = generate_mock_data()
         points.extend(mock_points[:100-len(points)])
     
     logger.info(f"correct perform with {len(points)} data points")
@@ -224,7 +224,7 @@ def process_api_data(records):
 # endregion
 
 # region mock data
-def generate_mock_data(year):
+def generate_mock_data():
     """mock data"""
     
     north = 41.45
@@ -232,7 +232,7 @@ def generate_mock_data(year):
     east = 2.18
     west = 2.09
     
-    np.random.seed(int(year))
+    np.random.seed()
     
     points = []
     for _ in range(200): 
@@ -261,16 +261,17 @@ def generate_mock_data(year):
 def get_districts():
     """get district location"""
     districts = [
-        {"id": "ciutat_vella", "name": "Ciutat Vella"},
-        {"id": "eixample", "name": "Eixample"},
-        {"id": "sants_montjuic", "name": "Sants-Montjuïc"},
-        {"id": "les_corts", "name": "Les Corts"},
-        {"id": "sarria_sant_gervasi", "name": "Sarrià-Sant Gervasi"},
-        {"id": "gracia", "name": "Gràcia"},
-        {"id": "horta_guinardo", "name": "Horta-Guinardó"},
-        {"id": "nou_barris", "name": "Nou Barris"},
-        {"id": "sant_andreu", "name": "Sant Andreu"},
-        {"id": "sant_marti", "name": "Sant Martí"}
+        # {"id": "ciutat_vella", "name": "Ciutat Vella"},
+        {"id": "Ciutat Vella", "name": "Ciutat Vella"},
+        {"id": "Eixample", "name": "Eixample"},
+        {"id": "Sants-Montjuïc", "name": "Sants-Montjuïc"},
+        {"id": "Les Corts", "name": "Les Corts"},
+        {"id": "Sarrià-Sant Gervasi", "name": "Sarrià-Sant Gervasi"},
+        {"id": "Gràcia", "name": "Gràcia"},
+        {"id": "Horta-Guinardó", "name": "Horta-Guinardó"},
+        {"id": "Nou Barris", "name": "Nou Barris"},
+        {"id": "Sant Andreu", "name": "Sant Andreu"},
+        {"id": "Sant Martí", "name": "Sant Martí"}
     ]
     return jsonify(districts)
 # endregion
