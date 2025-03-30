@@ -17,7 +17,7 @@ def index():
     """Serve the main page"""
     return render_template('index.html')
 
-# region fetch data from api
+# region get data from api processed data
 @app.route('/api/population-data', methods=['GET'])
 def get_population_data():
     """Get population density data for the heatmap"""
@@ -293,6 +293,45 @@ def get_district_boundaries(district):
     except Exception as e:
         logger.error(f"error when fetching boundaries data: {str(e)}")
         return jsonify({"error": str(e)}), 500
+# endregion
+
+# region get hotel data
+@app.route('/api/hotels')
+def get_hotels():
+    """Get hotel locations data"""
+    try:
+        Hoteljson_path = "./json/hotel_barcelona2024.json"
+        with open(Hoteljson_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        if not isinstance(data, list):
+            data = [data]
+        
+        hotels_info = []
+        for hotel in data:
+            name = hotel.get('name', 'Unknown')
+            
+            district_name = 'Unknown'
+            if hotel.get('addresses') and len(hotel['addresses']) > 0:
+                district_name = hotel['addresses'][0].get('district_name', 'Unknown')
+            
+            lat = None
+            lon = None
+            if hotel.get('geo_epgs_4326_latlon'):
+                lat = hotel['geo_epgs_4326_latlon'].get('lat')
+                lon = hotel['geo_epgs_4326_latlon'].get('lon')
+            
+            if lat and lon:
+                hotels_info.append({
+                    'name': name,
+                    'district': district_name,
+                    'location': [lat, lon]
+                })
+        # logger.error(f"666")
+        return jsonify(hotels_info)
+    except Exception as e:
+        logger.error(f"Error fetching hotel data: {str(e)}")
+        return jsonify({'error': str(e)}), 500
 # endregion
     
 if __name__ == '__main__':

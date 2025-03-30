@@ -1,4 +1,5 @@
 const map = L.map('map').setView([41.3851, 2.1734], 13);
+const hotelLayerGroup = L.layerGroup().addTo(map);
 
 // Add the base map tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -15,11 +16,47 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDistricts();
     
     // Set up event listener for update button
-    document.getElementById('updateMap').addEventListener('click', updateHeatmap);
+    document.getElementById('updateMap').addEventListener('click', updateVisualization);
     
     // Initialize the map with default data
     updateHeatmap();
+    loadHotels()
+    updateVisualization()
 });
+
+async function updateVisualization() {
+    // const visualTypeSelect = document.getElementById('visualType');
+    const visualTypeSelect = document.getElementById('year');
+    const districtSelect = document.getElementById('district');
+    
+    // 确保我们获取的是选择器的值
+    // const visualType = visualTypeSelect.value;
+    const year = visualTypeSelect.value;
+    const district = districtSelect.value;
+
+    // Clear existing layers
+    if (heatmapLayer) {
+        map.removeLayer(heatmapLayer);
+    }
+    hotelLayerGroup.clearLayers();
+
+    // Load district boundary if selected
+    if (district && district !== '') {
+        await loadDistrictBoundary(district);
+    } else {
+        if (districtLayer) {
+            map.removeLayer(districtLayer);
+            districtLayer = null;
+        }
+    }
+
+    // Update visualization based on selected type
+    if (year === 'population') {
+        await updateHeatmap(district);
+    } else if (year === 'hotels') {
+        await loadHotels();
+    }
+}
 
 // Function to load districts into dropdown
 async function loadDistricts() {
@@ -130,5 +167,33 @@ async function loadDistrictBoundary(district) {
         
     } catch (error) {
         console.error('Error loading district boundary:', error);
+    }
+}
+
+async function loadHotels() {
+    try {
+        const response = await fetch('/api/hotels');
+        const hotels = await response.json();
+        
+        // Create marker cluster
+        const markers = L.markerClusterGroup();
+        
+        // Add markers for each hotel
+        hotels.forEach(hotel => {
+            const marker = L.marker(hotel.location, {
+                icon: L.divIcon({
+                    html: '<i class="fas fa-hotel"></i>',
+                    className: 'hotel-marker',
+                    iconSize: [40, 40]
+                })
+            });
+            
+            marker.bindPopup(`<b>${hotel.name}</b><br>District: ${hotel.district}`);
+            markers.addLayer(marker);
+        });
+        
+        hotelLayerGroup.addLayer(markers);
+    } catch (error) {
+        console.error('Error loading hotels:', error);
     }
 }
