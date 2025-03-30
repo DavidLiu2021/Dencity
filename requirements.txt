@@ -1,3 +1,5 @@
+setuptools
+wheel
 meson==1.0.1
 ninja
 flask==2.3.3
